@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Users;
 
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,7 +20,6 @@ class UpdateUserRequest extends FormRequest
             'email' => ['sometimes','email','max:255',Rule::unique('users')->ignore($this->user->id)],
             'tipo_usuarios'=> 'sometimes|in:1,2',
             'id_sucursal_comercio' => 'sometimes|exists:sucursales_comercio,id',
-            'tipo_usuario_exchange' => 'nullable|string|in:' . implode(',', User::TIPO_USUARIO_EXCHANGE)
         ];
     }
 }

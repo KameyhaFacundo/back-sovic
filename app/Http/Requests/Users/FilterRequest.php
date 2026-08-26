@@ -24,7 +24,6 @@ class FilterRequest extends FormRequest
         return [
             'filtro' => 'sometimes|nullable|string',
             'is_deleted'=> 'sometimes|nullable|boolean',
-            'is_gestor_prendas' => 'sometimes|nullable|boolean',
             'cantidad' => 'required|integer|min:1',
             'pagina' => 'required|integer|min:1'
         ];

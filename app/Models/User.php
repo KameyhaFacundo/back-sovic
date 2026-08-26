@@ -29,7 +29,6 @@ class User extends Authenticatable implements JWTSubject, Auditable
         'email_verified_at',
         'password',
         'tipo_usuarios',
-        'tipo_usuario_exchange'
     ];
 
     /**
@@ -50,11 +49,6 @@ class User extends Authenticatable implements JWTSubject, Auditable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_admin' => 'boolean',
-    ];
-
-    public const TIPO_USUARIO_EXCHANGE = [
-        'T',
-        'C'
     ];
 
     public function tipoUsuario()
@@ -104,34 +98,4 @@ class User extends Authenticatable implements JWTSubject, Auditable
         return $this->hasManyThrough(Sucursal::class, UsuarioSucursal::class, 'id_usuario', 'id', 'id', 'id_sucursal')->with('comercio');
     }
 
-    public function registroCajaExchange()
-    {
-        return $this->hasMany(RegistroCajaExchange::class, 'id_usuario');
-    }
-
-    public function getRegistroCajaActualExchangeAttribute()
-    {
-        if ($this->tipo_usuario_exchange == 'T') {
-            return RegistroCajaExchange::where('es_tesoreria', 'T')
-                ->whereNull('cierre_caja_at')
-                ->latest('apertura_caja_at')
-                ->first();
-        }
-
-        return $this->registroCajaExchange()
-            ->whereNull('cierre_caja_at')
-            ->latest('apertura_caja_at')
-            ->first();
-    }
-    // public function registroCajaActualExchange()
-    // {
-    //     if ($this->tipo_usuario_exchange === 'T') {
-    //         return RegistroCajaExchange::where('es_tesoreria', 'T')
-    //             ->whereNull('cierre_caja_at')
-    //             ->latest('apertura_caja_at');
-    //     }
-    //     return $this->hasOne(RegistroCajaExchange::class, 'id_usuario')
-    //         ->whereNull('cierre_caja_at')
-    //         ->latest('apertura_caja_at');
-    // }
 }

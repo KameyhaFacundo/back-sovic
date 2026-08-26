@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "jaba-solutions/back-sovic",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Backend API de Sovic (JABA Solutions) — Laravel 10 + JWT.",
     "keywords": [
         "laravel",
         "framework"

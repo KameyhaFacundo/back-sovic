@@ -8,10 +8,8 @@ use App\Http\Requests\Users\ImpersonarUsuarioRequest;
 use App\Http\Requests\Users\LoginRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Http\Requests\Users\ChangePasswordRequest;
-use App\Models\RegistroCajaExchange;
 use App\Models\TipoUsuario;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\DB;
@@ -97,20 +95,9 @@ class UsersController extends Controller
             }
         }
 
-        if ($request->boolean('is_gestor_prendas')) {
-            $query->whereHas('permisos', function ($q) {
-                $q->where('codigo', 'gestor-prendas');
-            });
-        }
-
         $resultados = $query->paginate($request->cantidad, ['*'], 'page', $request->pagina);
 
-        $data = collect($resultados->items())->map(function ($user) {
-            return [
-                ...$user->toArray(),
-                'registro_caja_actual_exchange' => $user->registro_caja_actual_exchange
-            ];
-        });
+        $data = collect($resultados->items());
 
         return response()->json([
             'data' => $data,
@@ -118,62 +105,6 @@ class UsersController extends Controller
             'total_pages' => $resultados->lastPage(),
             'total_registros' => $resultados->total()
         ], 200);
-    }
-
-    public function usuariosConCajaActualExchange(Request $request)
-    {
-
-        $cajaTesoreriaExiste = RegistroCajaExchange::where('es_tesoreria', 'T')
-            ->whereNull('cierre_caja_at')
-            ->exists();
-
-        $query = User::where(function ($q) use ($cajaTesoreriaExiste) {
-
-            // Usuarios normales con caja abierta
-            $q->whereHas('registroCajaExchange', function ($sub) {
-                $sub->whereNull('cierre_caja_at');
-            });
-
-            // Usuarios tesorería (solo si existe caja compartida)
-            if ($cajaTesoreriaExiste) {
-                $q->orWhere('tipo_usuario_exchange', 'T');
-            }
-        })
-            ->with(['tipoUsuario', 'sucursales']);
-
-
-
-        if ($request->has('pagina') && $request->has('cantidad')) {
-            $pagina = $request->input('pagina');
-            $cantidad = $request->input('cantidad');
-            $resultados = $query->paginate($cantidad, ['*'], 'page', $pagina);
-            $data = collect($resultados->items())->map(function ($user) {
-                return [
-                    ...$user->toArray(),
-                    'registro_caja_actual_exchange' => $user->registro_caja_actual_exchange
-                ];
-            });
-            return response()->json([
-                'data' => $data,
-                'current_page' => $resultados->currentPage(),
-                'total_pages' => $resultados->lastPage(),
-                'total_registros' => $resultados->total()
-            ], 200);
-        } else {
-            $usuarios = $query->get();
-            $data = collect($usuarios)->map(function ($user) {
-                return [
-                    ...$user->toArray(),
-                    'registro_caja_actual_exchange' => $user->registro_caja_actual_exchange
-                ];
-            });
-            return response()->json([
-                'data' => $data,
-                'current_page' => 1,
-                'total_pages' => 1,
-                'total_registros' => $data->count()
-            ], 200);
-        }
     }
 
     protected function respondWithToken($token)
@@ -204,9 +135,6 @@ class UsersController extends Controller
         }
         if (isset($data['tipo_usuarios'])) {
             $user->tipo_usuarios = $data['tipo_usuarios'];
-        }
-        if (isset($data['tipo_usuario_exchange'])) {
-            $user->tipo_usuario_exchange = $data['tipo_usuario_exchange'];
         }
 
         $user->save();

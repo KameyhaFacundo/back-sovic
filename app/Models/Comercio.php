@@ -30,22 +30,9 @@ class Comercio extends Model implements FiltroTipoUsuarioEntidadesInterface
         'habilitado' => 'boolean',
     ];
 
-    public function planesComercio()
-    {
-        return $this->hasMany(PlanComercio::class, 'id_comercio');
-    }
-
     public function sucursales()
     {
         return $this->hasMany(Sucursal::class, 'id_comercio');
-    }
-    public function autorizaciones()
-    {
-        return $this->hasMany(Autorizacion::class, 'id_comercio');
-    }
-    public function movimientos()
-    {
-        return $this->hasMany(Movimiento::class, 'id_comercio');
     }
 
     public function scopeFiltroTipoUsuario($query, User $user, $request = null)

@@ -19,3 +19,9 @@ yarn-error.log
 /.idea
 /.vscode
 /.atl
+
+# graphify (regenerable knowledge-graph output)
+graphify-out/
+
+# Claude Code local session state
+.claude/

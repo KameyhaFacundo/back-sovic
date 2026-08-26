@@ -30,12 +30,5 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-    'wapifirma' => [
-        'api_key' => env('WAPIFIRMA_API_KEY'),
-    ],
-    'datadash' => [
-        'email' => env('DATADASH_EMAIL'),
-        'password' => env('DATADASH_PASSWORD'),
-    ],
 
 ];

@@ -23,14 +23,6 @@ class Sucursal extends Model implements FiltroTipoUsuarioEntidadesInterface
     {
         return $this->belongsTo(Comercio::class, 'id_comercio')->withTrashed();
     }
-    public function cajas()
-    {
-        return $this->hasMany(Caja::class, 'id_sucursal');
-    }
-    public function registroCaja()
-    {
-        return $this->hasMany(RegistroCaja::class, 'id_sucursal');
-    }
 
     public function scopeFiltroTipoUsuario($query, User $user, $request = null)
     {

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PermisosController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\RutasController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,5 +49,13 @@ Route::middleware('jwt.verify')->group(function () {
         Route::post('create', [RolesController::class, 'store'])->middleware('permisos.verify:create-roles');
         Route::post('update/{id}', [RolesController::class, 'update'])->middleware('permisos.verify:update-roles');
         Route::post('delete/{id}', [RolesController::class, 'delete'])->middleware('permisos.verify:delete-roles');
+    });
+
+    Route::prefix('rutas')->group(function () {
+        Route::post('index', [RutasController::class, 'filter'])->middleware('permisos.verify:list-rutas');
+        Route::get('show/{id}', [RutasController::class, 'show'])->middleware('permisos.verify:view-rutas');
+        Route::post('create', [RutasController::class, 'store'])->middleware('permisos.verify:create-rutas');
+        Route::post('update/{id}', [RutasController::class, 'update'])->middleware('permisos.verify:update-rutas');
+        Route::delete('delete/{id}', [RutasController::class, 'destroy'])->middleware('permisos.verify:delete-rutas');
     });
 });

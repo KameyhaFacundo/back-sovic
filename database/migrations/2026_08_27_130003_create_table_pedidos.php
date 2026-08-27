@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('fecha_pedido');
             $table->string('condicion_venta')->nullable();
             $table->string('cuenta_bancaria')->nullable();
-            $table->enum('estado', ['nuevo', 'procesado', 'liquidado'])->default('nuevo');
+            $table->string('estado', 20)->default('nuevo')->index(); // nuevo, procesado, liquidado
             $table->timestamps();
 
             $table->foreign('id_cliente')->references('id_cliente')->on('clientes')->onDelete('cascade');

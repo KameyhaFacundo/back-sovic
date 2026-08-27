@@ -31,7 +31,7 @@ return new class extends Migration
             $table->id('id_entrega');
             $table->unsignedBigInteger('id_pedido');
             $table->date('fecha');
-            $table->enum('tipo', ['total', 'parcial', 'nula']);
+            $table->string('tipo', 20); // total, parcial, nula
             $table->timestamps();
 
             $table->foreign('id_pedido')->references('id_pedido')->on('pedidos')->onDelete('cascade');

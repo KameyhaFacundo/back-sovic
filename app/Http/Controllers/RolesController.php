@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Factories\RolFactory;
 use App\Http\Requests\Roles\CreateRolesRequest;
 use App\Http\Requests\Roles\UpdateRolesRequest;
+use App\Http\Resources\RolResource;
 use App\Models\Rol;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RolesController extends Controller
 {
@@ -16,10 +18,10 @@ class RolesController extends Controller
         $roles = Rol::all();
 
         return response()->json([
-            'data' => $roles,
+            'data' => RolResource::collection($roles),
             'current_page' => 1,
             'total_pages' => 1,
-            'total_registros' => count($roles)
+            'total_registros' => $roles->count(),
         ], 200);
     }
 
@@ -31,7 +33,7 @@ class RolesController extends Controller
             return response()->json(['error' => 'Rol no encontrado.'], 404);
         }
 
-        return response()->json($rol, 200);
+        return response()->json(new RolResource($rol), 200);
     }
 
     public function store(CreateRolesRequest $request)
@@ -49,16 +51,17 @@ class RolesController extends Controller
             $rol->permisos()->sync($permisosIds);
             DB::commit();
 
-            return response()->json($rol->load('permisos'), 201);
+            return response()->json(new RolResource($rol->load('permisos')), 201);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return response()->json(['error' => 'Error al crear el rol.', 'details' => $th->getMessage()], 500);
+            Log::error('Error al crear el rol.', ['exception' => $th]);
+            return response()->json(['error' => 'Error al crear el rol.'], 500);
         }
     }
 
     public function update(UpdateRolesRequest $request, $id)
     {
-            DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $validated = $request->validated();
             $rol = Rol::findOrFail($id);
@@ -66,21 +69,19 @@ class RolesController extends Controller
             $rolFactory = RolFactory::fromRequest($validated, $rol);
             $rolFactory->save();
 
-        if (array_key_exists('permisos', $validated)) {
-            $rolFactory->permisos()->sync($validated['permisos'] ?? []);
+            if (array_key_exists('permisos', $validated)) {
+                $rolFactory->permisos()->sync($validated['permisos'] ?? []);
+            }
+
+            DB::commit();
+
+            return response()->json(new RolResource($rolFactory->load('permisos')), 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Error al actualizar el rol.', ['exception' => $th]);
+            return response()->json(['error' => 'Error al actualizar el rol.'], 500);
         }
-
-        DB::commit();
-
-        return response()->json($rolFactory->load('permisos'), 200);
-    } catch (\Throwable $th) {
-        DB::rollBack();
-        return response()->json([
-            'error'   => 'Error al actualizar el rol.',
-            'details' => $th->getMessage(),
-        ], 500);
     }
-}
 
     public function delete($id)
     {
@@ -88,9 +89,10 @@ class RolesController extends Controller
             $rol = Rol::findOrFail($id);
             $rol->delete();
 
-            return response()->json('Rol eliminado correctamente', 204);
+            return response()->json(['message' => 'Rol eliminado correctamente'], 200);
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Error al eliminar el rol.', 'details' => $th->getMessage()], 500);
+            Log::error('Error al eliminar el rol.', ['exception' => $th]);
+            return response()->json(['error' => 'Error al eliminar el rol.'], 500);
         }
     }
 }

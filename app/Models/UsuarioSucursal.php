@@ -11,6 +11,8 @@ class UsuarioSucursal extends Model
 
     protected $table = 'usuarios_sucursal';
 
+    protected $primaryKey = 'id_usuario_sucursal';
+
     protected $fillable = [
         'id_usuario',
         'id_sucursal',

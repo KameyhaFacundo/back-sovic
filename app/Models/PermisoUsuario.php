@@ -9,6 +9,7 @@ class PermisoUsuario extends Model
 {
     use HasFactory;
     protected $table = 'permisos_usuarios';
+    protected $primaryKey = 'id_permiso_usuario';
     protected $fillable = [
         'id_permiso',
         'id_usuario',
@@ -16,6 +17,6 @@ class PermisoUsuario extends Model
 
     public function permiso()
     {
-        return $this->belongsTo(Permiso::class, 'id_permiso', 'id');
+        return $this->belongsTo(Permiso::class, 'id_permiso', 'id_permiso');
     }
 }

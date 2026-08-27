@@ -23,10 +23,10 @@ class UpdateRolesRequest extends FormRequest
     {
         return [
             'nombre' => 'nullable|string',
-            'codigo' => 'nullable|string|unique:roles,codigo,' . $this->route('id'),
+            'codigo' => 'nullable|string|unique:roles,codigo,' . $this->route('id') . ',id_rol',
             'descripcion' => 'nullable|string',
             'permisos'    => ['sometimes', 'array'],
-            'permisos.*'  => ['numeric', 'exists:permisos,id'],
+            'permisos.*'  => ['numeric', 'exists:permisos,id_permiso'],
         ];
     }
 }

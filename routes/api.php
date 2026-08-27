@@ -25,7 +25,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::prefix('users')->group(function () {
         Route::post('create', [UsersController::class, 'create'])->middleware('permisos.verify:create-usuarios');
         Route::post('update/{user}', [UsersController::class, 'update'])->middleware('permisos.verify:update-usuarios');
-        Route::post('cambiarContraseña', [UsersController::class, 'cambiarContraseña'])->middleware('permisos.verify:update-usuarios');
+        Route::post('cambiarContrasena', [UsersController::class, 'cambiarContrasena'])->middleware('permisos.verify:update-usuarios');
         Route::post('impersonar', [UsersController::class, 'impersonar'])->middleware('permisos.verify:impersonate-usuarios');
         Route::post('index', [UsersController::class, 'filter'])->middleware('permisos.verify:list-usuarios');
         Route::get('show/{id}', [UsersController::class, 'show'])->middleware('permisos.verify:view-usuarios');

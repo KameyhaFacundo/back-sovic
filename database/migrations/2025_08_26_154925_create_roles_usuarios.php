@@ -33,6 +33,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles_usuarios');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('id_rol');
+        });
+
+        Schema::dropIfExists('rol_permisos');
+        Schema::dropIfExists('roles');
     }
 };

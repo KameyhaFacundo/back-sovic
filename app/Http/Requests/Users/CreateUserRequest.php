@@ -22,13 +22,14 @@ class CreateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_rol' => 'sometimes|nullable|exists:roles,id',
+            'id_rol' => 'sometimes|nullable|exists:roles,id_rol',
             'nombre_completo' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|max:255',
-            'tipo_usuarios' => 'required|exists:tipo_usuarios,id',
-            'id_sucursal_comercio' => 'sometimes|nullable|exists:sucursales_comercio,id',
+            'tipo_usuarios' => 'required|exists:tipo_usuarios,id_tipo_usuario',
+            'id_sucursal_comercio' => 'sometimes|nullable|exists:sucursales_comercio,id_sucursal',
             'is_admin' => 'sometimes|boolean',
+            'habilitado' => 'sometimes|boolean',
         ];
     }
 

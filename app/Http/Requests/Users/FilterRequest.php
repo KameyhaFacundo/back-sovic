@@ -23,7 +23,11 @@ class FilterRequest extends FormRequest
     {
         return [
             'filtro' => 'sometimes|nullable|string',
-            'is_deleted'=> 'sometimes|nullable|boolean',
+            'nombre' => 'sometimes|nullable|string',
+            'email' => 'sometimes|nullable|string',
+            'deshabilitados' => 'sometimes|nullable|boolean',
+            'orderBy' => 'sometimes|nullable|string',
+            'orderDir' => 'sometimes|nullable|string|in:asc,desc',
             'cantidad' => 'required|integer|min:1',
             'pagina' => 'required|integer|min:1'
         ];
@@ -33,6 +37,8 @@ class FilterRequest extends FormRequest
     {
         return [
             'filtro.string' => 'El filtro debe ser una cadena de texto.',
+            'nombre.string' => 'El nombre debe ser una cadena de texto.',
+            'email.string' => 'El email debe ser una cadena de texto.',
             'cantidad.required' => 'La cantidad es obligatoria.',
             'cantidad.integer' => 'La cantidad debe ser un número entero.',
             'cantidad.min' => 'La cantidad debe ser al menos 1.',

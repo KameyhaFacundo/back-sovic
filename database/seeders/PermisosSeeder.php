@@ -35,7 +35,7 @@ class PermisosSeeder extends Seeder
 
         $permisosArray = [];
         foreach ($permisos as $p) {
-            $permisosArray[] = ['id_rol' => $rol->id, 'id_permiso' => $p->id];
+            $permisosArray[] = ['id_rol' => $rol->id_rol, 'id_permiso' => $p->id_permiso];
         }
         DB::table('rol_permisos')->insert($permisosArray);
     }

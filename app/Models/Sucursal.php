@@ -13,6 +13,8 @@ class Sucursal extends Model implements FiltroTipoUsuarioEntidadesInterface
     use HasFactory, SoftDeletes, FiltroTipoUsuarioEntidadesTrait;
     protected $table = 'sucursales_comercio';
 
+    protected $primaryKey = 'id_sucursal';
+
     protected $fillable = [
         'descripcion',
         'id_comercio',

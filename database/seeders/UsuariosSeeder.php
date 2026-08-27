@@ -19,7 +19,7 @@ class UsuariosSeeder extends Seeder
             'nombre_completo' => "Administrador",
             'email' => "admin@example.com",
             'password' => "admin123",
-            'tipo_usuarios' => "1",
+            'id_tipo_usuario' => "1",
             'is_admin' => true,
         ]);
 

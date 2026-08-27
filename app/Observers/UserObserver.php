@@ -14,7 +14,7 @@ class UserObserver
         if($user->id_rol) {
             $user->load('rol.permisos');
             $permisos = $user->rol->permisos;
-            $user->permisos()->syncWithoutDetaching($permisos->pluck('id'));
+            $user->permisos()->syncWithoutDetaching($permisos->pluck('id_permiso'));
         }
     }
 
@@ -27,7 +27,7 @@ class UserObserver
             if($user->id_rol) {
                 $user->load('rol.permisos');
                 $permisos = $user->rol->permisos;
-                $user->permisos()->sync($permisos->pluck('id'));
+                $user->permisos()->sync($permisos->pluck('id_permiso'));
             } else {
                 $user->permisos()->detach();
             }

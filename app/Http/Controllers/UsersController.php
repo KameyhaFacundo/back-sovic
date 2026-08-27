@@ -8,11 +8,12 @@ use App\Http\Requests\Users\ImpersonarUsuarioRequest;
 use App\Http\Requests\Users\LoginRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Http\Requests\Users\ChangePasswordRequest;
+use App\Http\Resources\UserResource;
 use App\Models\TipoUsuario;
 use App\Models\User;
+use App\Models\UsuarioSucursal;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
@@ -28,21 +29,22 @@ class UsersController extends Controller
             'nombre_completo' => $request->nombre_completo,
             'email' => $request->email,
             'password' => $request->password,
-            'tipo_usuarios' => $request->tipo_usuarios,
+            'id_tipo_usuario' => $request->tipo_usuarios,
             'is_admin' => $request->boolean('is_admin'),
+            'habilitado' => $request->has('habilitado') ? $request->boolean('habilitado') : true,
         ]);
 
         if (!is_null($request->id_sucursal_comercio)) {
-            DB::table('usuarios_sucursal')->insert([
-                'id_usuario' => $user->id,
-                'id_sucursal' => $request->id_sucursal_comercio
+            UsuarioSucursal::create([
+                'id_usuario' => $user->id_usuario,
+                'id_sucursal' => $request->id_sucursal_comercio,
             ]);
         }
 
         $token = JWTAuth::fromUser($user);
         return response()->json([
-            'user' => $user,
-            'token' => $token // Devuelve el token si es necesario
+            'user' => new UserResource($user),
+            'token' => $token,
         ], 201);
     }
 
@@ -70,8 +72,7 @@ class UsersController extends Controller
         // Preparar la respuesta
         $response = [
             'token' => $this->respondWithToken($token),
-            'user' => $user
-
+            'user' => new UserResource($user),
         ];
 
         return response()->json($response);
@@ -82,7 +83,7 @@ class UsersController extends Controller
         // Obtener el valor de búsqueda
         $query = User::with(['tipoUsuario', 'sucursales']);
 
-        if ($request->has('filtro')) {
+        if ($request->filled('filtro')) {
             $filtro = $request->input('filtro');
             $query->where(function ($query) use ($filtro) {
                 $query->where('identificador', 'like', '%' . $filtro . '%')
@@ -91,19 +92,39 @@ class UsersController extends Controller
             });
         }
 
-        if ($request->has('is_deleted')) {
-            $isDeleted = $request->input('is_deleted', false);
-            if ($isDeleted) {
-                $query->withTrashed()->whereNotNull('deleted_at');
-            }
+        if ($request->filled('nombre')) {
+            $query->where('nombre_completo', 'like', '%' . $request->input('nombre') . '%');
+        }
+
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->input('email') . '%');
+        }
+
+        if ($request->boolean('deshabilitados')) {
+            $query->where('habilitado', false);
+        } else {
+            $query->where('habilitado', true);
+        }
+
+        // UserResource expone la PK real (id_usuario) como "id" para el front,
+        // asi que el orderBy que llega tambien habla en esos terminos.
+        $columnasOrdenables = [
+            'id' => 'id_usuario',
+            'nombre_completo' => 'nombre_completo',
+            'email' => 'email',
+            'created_at' => 'created_at',
+        ];
+        if ($request->filled('orderBy') && array_key_exists($request->input('orderBy'), $columnasOrdenables)) {
+            $orderDir = $request->input('orderDir') === 'desc' ? 'desc' : 'asc';
+            $query->orderBy($columnasOrdenables[$request->input('orderBy')], $orderDir);
+        } else {
+            $query->orderBy('id_usuario', 'desc');
         }
 
         $resultados = $query->paginate($request->cantidad, ['*'], 'page', $request->pagina);
 
-        $data = collect($resultados->items());
-
         return response()->json([
-            'data' => $data,
+            'data' => UserResource::collection($resultados->items()),
             'current_page' => $resultados->currentPage(),
             'total_pages' => $resultados->lastPage(),
             'total_registros' => $resultados->total()
@@ -114,7 +135,7 @@ class UsersController extends Controller
     {
         $user = User::with(['tipoUsuario', 'sucursales', 'rol'])->findOrFail($id);
 
-        return response()->json($user);
+        return response()->json(new UserResource($user));
     }
 
     protected function respondWithToken($token)
@@ -144,10 +165,13 @@ class UsersController extends Controller
             $user->email = $data['email'];
         }
         if (isset($data['tipo_usuarios'])) {
-            $user->tipo_usuarios = $data['tipo_usuarios'];
+            $user->id_tipo_usuario = $data['tipo_usuarios'];
         }
         if (isset($data['is_admin'])) {
             $user->is_admin = $data['is_admin'];
+        }
+        if (isset($data['habilitado'])) {
+            $user->habilitado = $data['habilitado'];
         }
         if (!empty($data['password'])) {
             $user->password = $data['password'];
@@ -156,19 +180,19 @@ class UsersController extends Controller
         $user->save();
 
         if (isset($data['id_sucursal_comercio'])) {
-            DB::table('usuarios_sucursal')->updateOrInsert(
-                ['id_usuario' => $user->id],
+            UsuarioSucursal::updateOrCreate(
+                ['id_usuario' => $user->id_usuario],
                 ['id_sucursal' => $data['id_sucursal_comercio']]
             );
         } else {
-            DB::table('usuarios_sucursal')->where('id_usuario', $user->id)->delete();
+            UsuarioSucursal::where('id_usuario', $user->id_usuario)->delete();
         }
 
         $user->load(['tipoUsuario', 'sucursales']);
 
         return response()->json([
             'message' => 'Usuario actualizado con éxito',
-            'user' => $user
+            'user' => new UserResource($user),
         ]);
     }
 
@@ -196,11 +220,11 @@ class UsersController extends Controller
 
         return response()->json([
             'message' => 'Usuario restaurado correctamente.',
-            'user' => $user
+            'user' => new UserResource($user),
         ]);
     }
 
-    public function cambiarContraseña(ChangePasswordRequest $request)
+    public function cambiarContrasena(ChangePasswordRequest $request)
     {
         $data = $request->validated();
 
@@ -211,7 +235,12 @@ class UsersController extends Controller
 
         return response()->json([
             'message' => 'Contraseña actualizada con éxito',
-            'user' => $user->only(['id', 'nombre_completo', 'email', 'identificador'])
+            'user' => [
+                'id' => $user->id_usuario,
+                'nombre_completo' => $user->nombre_completo,
+                'email' => $user->email,
+                'identificador' => $user->identificador,
+            ],
         ]);
     }
 
@@ -229,7 +258,7 @@ class UsersController extends Controller
         return response()->json([
             'message' => 'Impersonación exitosa',
             'token' => $token,
-            'user' => $user->load(['tipoUsuario', 'sucursales', 'permisosUsuarios']),
+            'user' => new UserResource($user->load(['tipoUsuario', 'sucursales', 'permisosUsuarios'])),
         ]);
     }
 }

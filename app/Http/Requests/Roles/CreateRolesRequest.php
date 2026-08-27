@@ -26,7 +26,7 @@ class CreateRolesRequest extends FormRequest
             'codigo' => 'required|string|unique:roles,codigo',
             'descripcion' => 'nullable|string',
             'permisos' => 'nullable|array',
-            'permisos.*' => 'numeric|exists:permisos,id',
+            'permisos.*' => 'numeric|exists:permisos,id_permiso',
         ];
     }
 }

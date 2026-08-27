@@ -14,7 +14,7 @@ class ImpersonarUsuarioRequest extends FormRequest
     public function rules()
     {
         return [
-            'id_usuario' => 'required|integer|exists:users,id',
+            'id_usuario' => 'required|integer|exists:users,id_usuario',
         ];
     }
 }

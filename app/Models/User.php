@@ -18,18 +18,27 @@ class User extends Authenticatable implements JWTSubject, Auditable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, AuditingAuditable;
 
     /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id_usuario';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'id_rol',
         'identificador',
         'nombre_completo',
         'email',
         'email_verified_at',
         'password',
-        'tipo_usuarios',
+        'id_tipo_usuario',
         'is_admin',
+        'habilitado',
     ];
 
     /**
@@ -50,11 +59,12 @@ class User extends Authenticatable implements JWTSubject, Auditable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_admin' => 'boolean',
+        'habilitado' => 'boolean',
     ];
 
     public function tipoUsuario()
     {
-        return $this->belongsTo(TipoUsuario::class, 'tipo_usuarios');
+        return $this->belongsTo(TipoUsuario::class, 'id_tipo_usuario');
     }
 
     public function getJWTIdentifier()
@@ -96,7 +106,7 @@ class User extends Authenticatable implements JWTSubject, Auditable
 
     public function sucursales()
     {
-        return $this->hasManyThrough(Sucursal::class, UsuarioSucursal::class, 'id_usuario', 'id', 'id', 'id_sucursal')->with('comercio');
+        return $this->hasManyThrough(Sucursal::class, UsuarioSucursal::class, 'id_usuario', 'id_sucursal', 'id_usuario', 'id_sucursal')->with('comercio');
     }
 
 }

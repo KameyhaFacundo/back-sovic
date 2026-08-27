@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Permisos\AgregarPermisoRequest;
+use App\Http\Resources\PermisoResource;
 use App\Models\Permiso;
 use App\Models\PermisoUsuario;
 use App\Models\RolPermiso;
-use Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Models\TipoUsuario;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class PermisosController extends Controller
 {
@@ -23,7 +23,7 @@ class PermisosController extends Controller
     {
         $permisos = Permiso::all();
 
-        return response()->json($permisos);
+        return response()->json(PermisoResource::collection($permisos));
     }
 
     public function indexAgrupados()
@@ -36,11 +36,11 @@ class PermisosController extends Controller
     public function PermisosUsuario(User $usuario)
     {
         try {
-            $permisosUsuario = PermisoUsuario::where('id_usuario', operator: $usuario->id)->with('permiso')->get();
+            $permisosUsuario = PermisoUsuario::where('id_usuario', $usuario->id_usuario)->with('permiso')->get();
             return response()->json($permisosUsuario);
         } catch (\Throwable $th) {
-            // Manejar la excepción
-            return response()->json(['error' => 'Error al obtener los permisos.', 'details' => $th->getMessage()], 500);
+            Log::error('Error al obtener los permisos del usuario.', ['exception' => $th]);
+            return response()->json(['error' => 'Error al obtener los permisos.'], 500);
         }
     }
 
@@ -48,17 +48,16 @@ class PermisosController extends Controller
     {
         try {
             $user = JWTAuth::parseToken()->authenticate();
-            $tipoUsuario = TipoUsuario::find($user->tipo_usuarios);
 
-            $permisosUsuario = PermisoUsuario::where('id_usuario', $user->id)->with('permiso')->get();
+            $permisosUsuario = PermisoUsuario::where('id_usuario', $user->id_usuario)->with('permiso')->get();
             $permisosRol = RolPermiso::where('id_rol', $user->id_rol)->with('permiso')->get();
             $permisos = $permisosUsuario->concat($permisosRol);
             $permisos = $permisos->unique('id_permiso')->values();
 
             return response()->json($permisos);
         } catch (\Throwable $th) {
-            // Manejar la excepción
-            return response()->json(['error' => 'Error al obtener los permisos.', 'details' => $th->getMessage()], 500);
+            Log::error('Error al obtener mis permisos.', ['exception' => $th]);
+            return response()->json(['error' => 'Error al obtener los permisos.'], 500);
         }
     }
 
@@ -74,7 +73,7 @@ class PermisosController extends Controller
         $id_permisos = $request->input('id_permiso', []);
 
         // Validar que todos los permisos existan
-        $permisosValidos = Permiso::whereIn('id', $id_permisos)->get(['id'])->pluck('id')->all();
+        $permisosValidos = Permiso::whereIn('id_permiso', $id_permisos)->pluck('id_permiso')->all();
 
         if (count($permisosValidos) !== count($id_permisos)) {
             return response()->json(['error' => 'Uno o más permisos no existen.'], 404);

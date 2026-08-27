@@ -23,7 +23,7 @@ class AgregarPermisoRequest extends FormRequest
     {
         return [
             'id_permiso' => 'nullable|array',
-            'id_permiso.*' => 'integer|exists:permisos,id',
+            'id_permiso.*' => 'integer|exists:permisos,id_permiso',
         ];
     }
 

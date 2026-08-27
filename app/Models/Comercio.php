@@ -12,6 +12,8 @@ class Comercio extends Model implements FiltroTipoUsuarioEntidadesInterface
 {
     use HasFactory, SoftDeletes, FiltroTipoUsuarioEntidadesTrait;
 
+    protected $primaryKey = 'id_comercio';
+
     protected $fillable = [
         'razon_social',
         'nombre_fantasia',
@@ -41,7 +43,7 @@ class Comercio extends Model implements FiltroTipoUsuarioEntidadesInterface
         $sucursalUsuario = $user->sucursales->first();
 
         if ($tipoUsuarioCodigo === 'CLI' && !$sucursalUsuario->comercio->propio) {
-            $query->where('id', $sucursalUsuario->comercio->id);
+            $query->where('id_comercio', $sucursalUsuario->comercio->id_comercio);
         }
 
         return $query;

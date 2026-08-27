@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class TipoUsuario extends Model
 {
     use HasFactory;
+
+    protected $primaryKey = 'id_tipo_usuario';
+
     protected $fillable = [
         'codigo',
         'detalle',
@@ -15,6 +18,6 @@ class TipoUsuario extends Model
 
     public function users()
     {
-        return $this->hasMany(User::class, 'tipo_usuarios');
+        return $this->hasMany(User::class, 'id_tipo_usuario');
     }
 }

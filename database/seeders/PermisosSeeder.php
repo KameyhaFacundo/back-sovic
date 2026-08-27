@@ -14,14 +14,6 @@ class PermisosSeeder extends Seeder
         ['nombre' => 'Crear usuarios', 'codigo' => 'create-usuarios', 'grupo' => 'usuarios'],
         ['nombre' => 'Actualizar usuarios', 'codigo' => 'update-usuarios', 'grupo' => 'usuarios'],
         ['nombre' => 'Borrar usuarios', 'codigo' => 'delete-usuarios', 'grupo' => 'usuarios'],
-        ['nombre' => 'Impersonar usuarios', 'codigo' => 'impersonate-usuarios', 'grupo' => 'usuarios'],
-
-        // ROLES (PERMISOS DE ADMINISTRACION DE ROLES)
-        ['nombre' => 'Listar roles', 'codigo' => 'list-roles', 'grupo' => 'roles'],
-        ['nombre' => 'Ver roles', 'codigo' => 'view-roles', 'grupo' => 'roles'],
-        ['nombre' => 'Crear roles', 'codigo' => 'create-roles', 'grupo' => 'roles'],
-        ['nombre' => 'Actualizar roles', 'codigo' => 'update-roles', 'grupo' => 'roles'],
-        ['nombre' => 'Eliminar roles', 'codigo' => 'delete-roles', 'grupo' => 'roles'],
     ];
 
     public function run()

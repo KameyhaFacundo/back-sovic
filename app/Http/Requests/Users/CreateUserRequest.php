@@ -27,7 +27,8 @@ class CreateUserRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|max:255',
             'tipo_usuarios' => 'required|exists:tipo_usuarios,id',
-            'id_sucursal_comercio' => 'required|exists:sucursales_comercio,id'
+            'id_sucursal_comercio' => 'sometimes|nullable|exists:sucursales_comercio,id',
+            'is_admin' => 'sometimes|boolean',
         ];
     }
 

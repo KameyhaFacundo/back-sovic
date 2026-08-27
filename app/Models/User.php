@@ -29,6 +29,7 @@ class User extends Authenticatable implements JWTSubject, Auditable
         'email_verified_at',
         'password',
         'tipo_usuarios',
+        'is_admin',
     ];
 
     /**

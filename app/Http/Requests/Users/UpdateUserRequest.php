@@ -20,6 +20,8 @@ class UpdateUserRequest extends FormRequest
             'email' => ['sometimes','email','max:255',Rule::unique('users')->ignore($this->user->id)],
             'tipo_usuarios'=> 'sometimes|in:1,2',
             'id_sucursal_comercio' => 'sometimes|exists:sucursales_comercio,id',
+            'is_admin' => 'sometimes|boolean',
+            'password' => 'sometimes|nullable|string|min:6',
         ];
     }
 }

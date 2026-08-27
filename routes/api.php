@@ -28,6 +28,7 @@ Route::middleware('jwt.verify')->group(function () {
         Route::post('cambiarContraseña', [UsersController::class, 'cambiarContraseña'])->middleware('permisos.verify:update-usuarios');
         Route::post('impersonar', [UsersController::class, 'impersonar'])->middleware('permisos.verify:impersonate-usuarios');
         Route::post('index', [UsersController::class, 'filter'])->middleware('permisos.verify:list-usuarios');
+        Route::get('show/{id}', [UsersController::class, 'show'])->middleware('permisos.verify:view-usuarios');
         Route::delete('delete/{id}', [UsersController::class, 'destroy'])->middleware('permisos.verify:delete-usuarios');
         Route::put('restore/{id}', [UsersController::class, 'restore'])->middleware('permisos.verify:update-usuarios');
     });

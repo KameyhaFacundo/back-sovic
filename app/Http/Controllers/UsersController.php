@@ -29,12 +29,15 @@ class UsersController extends Controller
             'email' => $request->email,
             'password' => $request->password,
             'tipo_usuarios' => $request->tipo_usuarios,
+            'is_admin' => $request->boolean('is_admin'),
         ]);
 
-        DB::table('usuarios_sucursal')->insert([
-            'id_usuario' => $user->id,
-            'id_sucursal' => $request->id_sucursal_comercio
-        ]);
+        if (!is_null($request->id_sucursal_comercio)) {
+            DB::table('usuarios_sucursal')->insert([
+                'id_usuario' => $user->id,
+                'id_sucursal' => $request->id_sucursal_comercio
+            ]);
+        }
 
         $token = JWTAuth::fromUser($user);
         return response()->json([
@@ -107,6 +110,13 @@ class UsersController extends Controller
         ], 200);
     }
 
+    public function show($id)
+    {
+        $user = User::with(['tipoUsuario', 'sucursales', 'rol'])->findOrFail($id);
+
+        return response()->json($user);
+    }
+
     protected function respondWithToken($token)
     {
         $ttl = config('jwt.ttl');
@@ -135,6 +145,12 @@ class UsersController extends Controller
         }
         if (isset($data['tipo_usuarios'])) {
             $user->tipo_usuarios = $data['tipo_usuarios'];
+        }
+        if (isset($data['is_admin'])) {
+            $user->is_admin = $data['is_admin'];
+        }
+        if (!empty($data['password'])) {
+            $user->password = $data['password'];
         }
 
         $user->save();
